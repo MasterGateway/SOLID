@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOLID aplicado — Alquiler Estudiantes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --bg-elevated: #ffffff;
+    --text: #14171f;
+    --text-dim: #5b6270;
+    --border: #e3e6ec;
+    --code-bg: #1c1f26;
+    --code-text: #d7dbe3;
+    --code-dim: #7d8494;
+    --accent: #2563eb;
+    --before: #dc2626;
+    --before-bg: #fef2f2;
+    --before-border: #fecaca;
+    --after: #16a34a;
+    --after-bg: #f0fdf4;
+    --after-border: #bbf7d0;
+    --srp: #2563eb;
+    --dip: #7c3aed;
+    --coh: #0d9488;
+    --acop: #ea580c;
+    --radius: 14px;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1115;
+      --bg-elevated: #171a21;
+      --text: #eef0f4;
+      --text-dim: #9aa1b0;
+      --border: #2a2e38;
+      --code-bg: #0b0d11;
+      --code-text: #d7dbe3;
+      --code-dim: #6b7280;
+      --before-bg: #2a1414;
+      --before-border: #4a1f1f;
+      --after-bg: #0f2418;
+      --after-border: #17402a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1115;
+    --bg-elevated: #171a21;
+    --text: #eef0f4;
+    --text-dim: #9aa1b0;
+    --border: #2a2e38;
+    --code-bg: #0b0d11;
+    --code-text: #d7dbe3;
+    --code-dim: #6b7280;
+    --before-bg: #2a1414;
+    --before-border: #4a1f1f;
+    --after-bg: #0f2418;
+    --after-border: #17402a;
+  }
+  html { scroll-padding-top: 76px; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+  }
+  header.top {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    overflow-x: auto;
+  }
+  .nav .brand { font-weight: 800; font-size: 15px; white-space: nowrap; flex-shrink: 0; }
+  .nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .nav a:hover { color: var(--accent); }
+
+  .hero {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 56px 20px 32px;
+  }
+  .hero .eyebrow {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 4.5vw, 42px);
+    line-height: 1.15;
+    margin: 0 0 14px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .hero p.lead {
+    color: var(--text-dim);
+    font-size: 17px;
+    max-width: 680px;
+    margin: 0 0 22px;
+  }
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  main { max-width: 1040px; margin: 0 auto; padding: 0 20px 80px; }
+
+  section.block { margin-top: 64px; }
+  section.block:first-of-type { margin-top: 8px; }
+
+  .block-head { margin-bottom: 22px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .badge {
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    color: white;
+    letter-spacing: 0.01em;
+  }
+  .badge.srp { background: var(--srp); }
+  .badge.dip { background: var(--dip); }
+  .badge.coh { background: var(--coh); }
+  .badge.acop { background: var(--acop); }
+  .badge.extra { background: #64748b; }
+
+  .block-head h2 {
+    font-size: clamp(21px, 3vw, 27px);
+    margin: 0 0 8px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .block-head .file-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    padding: 3px 9px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  .block-head p.desc { color: var(--text-dim); margin: 12px 0 0; max-width: 720px; }
+
+  .diagram-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin: 18px 0;
+  }
+  .diagram-card .cap {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  pre.mermaid { background: transparent; margin: 0; }
+
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-top: 8px;
+  }
+  @media (min-width: 860px) {
+    .compare.side-by-side { grid-template-columns: 1fr 1fr; }
+  }
+
+  .panel {
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    background: var(--bg-elevated);
+  }
+  .panel.before { border-color: var(--before-border); }
+  .panel.after { border-color: var(--after-border); }
+
+  .panel .ptitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 13.5px;
+  }
+  .panel.before .ptitle { background: var(--before-bg); color: var(--before); }
+  .panel.after .ptitle { background: var(--after-bg); color: var(--after); }
+  .panel .ptitle .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .panel .ptitle small { font-weight: 500; color: var(--text-dim); margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+  .panel .pbody { padding: 14px 16px 16px; }
+  .panel .pbody > p { margin: 0 0 10px; font-size: 14.5px; color: var(--text); }
+  .panel .consequence {
+    font-size: 13.5px;
+    color: var(--text-dim);
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+  }
+  .panel .consequence strong { color: var(--text); }
+  .panel .consequence ul { margin: 6px 0 0; padding-left: 18px; }
+  .panel .consequence li { margin-bottom: 4px; }
+
+  pre.code {
+    margin: 0;
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 14px 16px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.3px;
+    line-height: 1.65;
+  }
+  pre.code .c { color: var(--code-dim); font-style: italic; }
+  pre.code .hl-bad { background: rgba(220,38,38,0.22); display: inline-block; width: 100%; margin: 0 -16px; padding: 0 16px; }
+  pre.code .hl-good { background: rgba(22,163,74,0.22); display: inline-block; width: 100%; margin: 0 -16px; padding: 0 16px; }
+
+  .filegroup { display: flex; flex-direction: column; gap: 10px; }
+  .filegroup .fname {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  .callout {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 18px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .callout strong { color: var(--text); }
+
+  table.summary {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 13.5px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  table.summary th, table.summary td {
+    text-align: left;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  table.summary th { background: color-mix(in srgb, var(--bg) 60%, var(--bg-elevated)); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+  table.summary tr:last-child td { border-bottom: none; }
+  table.summary td.before-cell { color: var(--before); }
+  table.summary td.after-cell { color: var(--after); }
+
+  .overflow-x { overflow-x: auto; }
+
+  footer {
+    max-width: 1040px;
+    margin: 40px auto 0;
+    padding: 24px 20px 40px;
+    color: var(--text-dim);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+
+  .theme-toggle {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <nav class="nav">
+    <span class="brand">🎓 SOLID en la práctica</span>
+    <a href="#arquitectura">Arquitectura</a>
+    <a href="#bloque-1">Bloque 1 · SRP</a>
+    <a href="#bloque-2">Bloque 2 · DIP</a>
+    <a href="#bloque-3">Bloque 3 · Middleware</a>
+    <a href="#extra">Extra</a>
+    <a href="#resumen">Resumen</a>
+    <button class="theme-toggle" onclick="document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark')">◑ Tema</button>
+  </nav>
+</header>
+
+<div class="hero">
+  <div class="eyebrow">Plataforma de alquiler para estudiantes</div>
+  <h1>Antes y después: SOLID aplicado al backend</h1>
+  <p class="lead">
+    Comparación real, tomada del mismo proyecto, de cómo estaba el código antes de aplicar
+    SOLID y cómo quedó después de refactorizarlo por capas. Cada bloque muestra el problema
+    concreto, el código exacto de ambas versiones, y qué consecuencia práctica tenía uno vs. el otro.
+  </p>
+  <div class="stack">
+    <span class="chip">Node.js + Express</span>
+    <span class="chip">TypeScript</span>
+    <span class="chip">Drizzle ORM</span>
+    <span class="chip">Monorepo pnpm</span>
+    <span class="chip">Contrato OpenAPI</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- ARQUITECTURA -->
+  <section class="block" id="arquitectura">
+    <div class="block-head">
+      <div class="badges"><span class="badge coh">Arquitectura</span></div>
+      <h2>De rutas monolíticas a capas por módulo</h2>
+      <p class="desc">
+        Antes, cada archivo de <code>routes/</code> hacía todo: validaba, aplicaba reglas de negocio
+        y consultaba la base de datos en la misma función. Después, cada capacidad de negocio
+        (listings, auth, admin...) se organizó en un módulo con 4 responsabilidades separadas,
+        conectadas por un único punto de composición.
+      </p>
+    </div>
+
+    <div class="compare side-by-side">
+      <div class="panel before">
+        <div class="ptitle"><span class="dot"></span> Antes</div>
+        <div class="pbody">
+          <div class="diagram-card" style="margin:0;border:none;padding:0;">
+            <pre class="mermaid">
+graph TD
+  C[Cliente HTTP] --> R["routes/listings.ts<br/>validación + reglas de negocio + queries Drizzle, todo junto"]
+  R --> DB[(Base de datos)]
+            </pre>
+          </div>
+          <div class="consequence">
+            <strong>Consecuencia:</strong>
+            <ul>
+              <li>Un solo archivo cambia por 3 razones distintas (SRP roto)</li>
+              <li>La regla de negocio queda escrita adentro de la consulta SQL, no se puede leer por separado</li>
+              <li>Cambiar de ORM implica tocar cada archivo de rutas</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="panel after">
+        <div class="ptitle"><span class="dot"></span> Después</div>
+        <div class="pbody">
+          <div class="diagram-card" style="margin:0;border:none;padding:0;">
+            <pre class="mermaid">
+graph LR
+  C[Cliente HTTP] --> RT["listings.routes.ts<br/>solo HTTP"]
+  RT --> SV["listings.service.ts<br/>reglas de negocio"]
+  SV --> IF[["IListingsRepository<br/>interfaz"]]
+  IF -.implementa.- RP["listings.repository.ts<br/>Drizzle"]
+  RP --> DB[(Base de datos)]
+  CT["container.ts<br/>composition root"] -.inyecta.-> SV
+  CT -.inyecta.-> RP
+            </pre>
+          </div>
+          <div class="consequence">
+            <strong>Consecuencia:</strong>
+            <ul>
+              <li>Cada capa cambia por una sola razón (SRP)</li>
+              <li>La regla de negocio queda escrita en una función con nombre propio, se lee sola</li>
+              <li>Cambiar de ORM solo afecta a <code>*.repository.ts</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Regla de dependencia:</strong> routes → service → interfaz del repositorio ← repositorio (implementación).
+      El service nunca conoce la implementación concreta, solo la interfaz — eso es Inversión de Dependencias (DIP) puesta en la arquitectura.
+    </div>
+  </section>
+
+  <!-- BLOQUE 1: SRP -->
+  <section class="block" id="bloque-1">
+    <div class="block-head">
+      <div class="badges">
+        <span class="badge srp">SRP</span>
+        <span class="badge coh">Alta cohesión</span>
+      </div>
+      <h2>Bloque 1 — Editar un alojamiento (PATCH /listings/:id)</h2>
+      <span class="file-tag">routes/listings.ts → modules/listings/*</span>
+      <p class="desc">
+        Este endpoint es el ejemplo más claro: en una sola función se mezclaba validación de
+        parámetros, una consulta para ver si existe, una regla de permisos, validación del body,
+        transformación de datos y el UPDATE a la base de datos.
+      </p>
+    </div>
+
+    <div class="compare">
+      <div class="panel before">
+        <div class="ptitle"><span class="dot"></span> Antes <small>routes/listings.ts</small></div>
+        <div class="pbody">
+<pre class="code">router.patch("/listings/:id", requireAuth, async (req, res) => {
+  const user = (req as any).user;
+  const id = parseInt(req.params.id, 10);
+
+  <span class="c">// 1. validar parámetros</span>
+  const paramsParsed = UpdateListingParams.safeParse({ id });
+  if (!paramsParsed.success || isNaN(id)) {
+    res.status(400).json({ error: "ID inválido" }); return;
+  }
+
+  <span class="hl-bad">  <span class="c">// 2. consultar directo a Drizzle para ver si existe</span>
+  const [existing] = await db.select().from(listingsTable)
+    .where(eq(listingsTable.id, id)).limit(1);</span>
+  if (!existing) { res.status(404).json({ error: "No encontrado" }); return; }
+
+  <span class="hl-bad">  <span class="c">// 3. regla de negocio (permisos) mezclada aquí mismo</span>
+  if (existing.landlordId !== user.id && user.role !== "administrador") {
+    res.status(403).json({ error: "No tienes permiso" }); return;
+  }</span>
+
+  <span class="c">// 4. validar el body</span>
+  const parsed = UpdateListingBody.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+
+  <span class="c">// 5. transformar los datos a mano</span>
+  const updates: any = {};
+  if (parsed.data.title != null) updates.title = parsed.data.title;
+  <span class="c">// ...7 líneas más igual de repetitivas...</span>
+
+  <span class="hl-bad">  <span class="c">// 6. y finalmente, el UPDATE directo a Drizzle</span>
+  const [updated] = await db.update(listingsTable).set(updates)
+    .where(eq(listingsTable.id, id)).returning();</span>
+  res.json(formatListing(updated));
+});</pre>
+          <div class="consequence">
+            <strong>Consecuencia real de esto:</strong>
+            <ul>
+              <li>La función tiene <strong>3 razones distintas para cambiar</strong>: cambia el formato de la API, cambia la regla de quién puede editar, o cambia la forma de guardar en BD — y las tres tocan el mismo archivo.</li>
+              <li>La regla de permisos ("dueño o admin") está mezclada entre validaciones de HTTP y una consulta SQL, en vez de leerse como una sola idea.</li>
+              <li>Esta misma lógica de permisos estaba <strong>duplicada</strong> en el DELETE de abajo, letra por letra.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel after">
+        <div class="ptitle"><span class="dot"></span> Después <small>modules/listings/</small></div>
+        <div class="pbody">
+          <div class="filegroup">
+            <div class="fname">listings.routes.ts — solo HTTP</div>
+<pre class="code">router.patch("/listings/:id", requireAuth, async (req, res, next) => {
+  try {
+    const id = parseInt(String(req.params.id), 10);
+    if (!UpdateListingParams.safeParse({ id }).success) {
+      res.status(400).json({ error: "ID inválido" }); return;
+    }
+    const parsed = UpdateListingBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message }); return;
+    }
+    <span class="hl-good">res.json(await service.update((req as AuthenticatedRequest).user, id, parsed.data));</span>
+  } catch (error) { handleRouteError(error, req, res, next); }
+});</pre>
+            <div class="fname" style="margin-top:6px;">listings.service.ts — la regla de negocio, aislada</div>
+<pre class="code">async update(user: User, id: number, input: ListingUpdate) {
+  const existing = await this.repository.findById(id);
+  if (!existing) throw new HttpError(404, "Alojamiento no encontrado");
+  <span class="hl-good">if (existing.listing.landlordId !== user.id && user.role !== "administrador") {
+    throw new HttpError(403, "No tienes permiso para editar este alojamiento");
+  }</span>
+  const updated = await this.repository.update(id, input);
+  return this.format(updated);
+}</pre>
+            <div class="fname" style="margin-top:6px;">listings.repository.ts — el único que conoce Drizzle</div>
+<pre class="code">async update(id: number, updates: ListingUpdate) {
+  <span class="hl-good">const [updated] = await db.update(listingsTable).set({ ...updates, updatedAt: new Date() })
+    .where(eq(listingsTable.id, id)).returning();</span>
+  return updated;
+}</pre>
+          </div>
+          <div class="consequence">
+            <strong>Consecuencia real de esto:</strong>
+            <ul>
+              <li>La regla "solo el dueño o un admin puede editar" vive en <strong>un solo lugar</strong> (<code>listings.service.ts</code>) y ahora la reutiliza también el DELETE, sin copiar y pegar.</li>
+              <li>El service no sabe si los datos se guardan en Postgres, en otra base de datos o en un archivo — solo conoce los métodos de la interfaz.</li>
+              <li>La ruta ya no sabe que existe Drizzle; solo conoce al <code>service</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOQUE 2: DIP + composition root -->
+  <section class="block" id="bloque-2">
+    <div class="block-head">
+      <div class="badges">
+        <span class="badge dip">DIP</span>
+        <span class="badge acop">Bajo acoplamiento</span>
+      </div>
+      <h2>Bloque 2 — Cómo se conectan las piezas (composition root)</h2>
+      <span class="file-tag">routes/index.ts → container.ts</span>
+      <p class="desc">
+        Antes no existía ningún punto donde se "armara" el sistema: cada router se importaba
+        directo y usaba <code>db</code> internamente. Después existe un único archivo,
+        <code>container.ts</code>, que crea los repositorios (implementaciones concretas) y se
+        los inyecta a los services (que solo conocen la interfaz).
+      </p>
+    </div>
+
+    <div class="compare">
+      <div class="panel before">
+        <div class="ptitle"><span class="dot"></span> Antes <small>routes/index.ts</small></div>
+        <div class="pbody">
+<pre class="code">import authRouter from "./auth";
+import listingsRouter from "./listings";
+<span class="c">// cada router se construye a sí mismo por dentro,</span>
+<span class="c">// importando `db` en su propio archivo</span>
+
+router.use(authRouter);
+<span class="hl-bad">router.use(listingsRouter);</span>
+router.use(roommatesRouter);</pre>
+          <div class="consequence">
+            <strong>Consecuencia:</strong>
+            <ul>
+              <li><code>listingsRouter</code> trae su propia dependencia a Drizzle desde adentro; nada externo decide con qué implementación trabaja.</li>
+              <li>No existe un lugar único donde ver "de qué depende cada cosa" del sistema.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="panel after">
+        <div class="ptitle"><span class="dot"></span> Después <small>container.ts</small></div>
+        <div class="pbody">
+<pre class="code">const listingsRepository = new ListingsRepository();  <span class="c">// implementación concreta</span>
+const authRepository = new AuthRepository();
+
+export const container = {
+  <span class="hl-good">listings: new ListingsService(listingsRepository),</span>
+  <span class="hl-good">auth: new AuthService(authRepository),</span>
+  requireAuth: createRequireAuth(authRepository),
+  requireRole: createRequireRole(authRepository),
+};</pre>
+<pre class="code">// routes/index.ts
+<span class="hl-good">router.use(createAuthRouter(container.auth, container.requireAuth));
+router.use(createListingsRouter(container.listings, container.requireAuth));</span></pre>
+          <div class="consequence">
+            <strong>Consecuencia:</strong>
+            <ul>
+              <li><code>ListingsService</code> recibe su repositorio por parámetro; no lo crea ni decide cuál usar, solo lo usa.</li>
+              <li>Un solo archivo (<code>container.ts</code>) muestra todo el mapa de dependencias del backend.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOQUE 3: Middleware -->
+  <section class="block" id="bloque-3">
+    <div class="block-head">
+      <div class="badges">
+        <span class="badge dip">DIP</span>
+        <span class="badge acop">Bajo acoplamiento</span>
+      </div>
+      <h2>Bloque 3 — El middleware transversal <code>requireAuth</code></h2>
+      <span class="file-tag">middlewares/auth.ts</span>
+      <p class="desc">
+        Este middleware se ejecuta antes de cada endpoint protegido: toma el token del header
+        <code>Authorization</code>, lo valida, busca al usuario correspondiente y lo agrega a la
+        petición (<code>req.user</code>) para que el controlador lo use. Al no pertenecer a ningún
+        módulo de negocio en particular, es código transversal — corre igual para listings, auth,
+        roommates, admin y dashboard.
+      </p>
+    </div>
+
+    <div class="compare side-by-side">
+      <div class="panel before">
+        <div class="ptitle"><span class="dot"></span> Antes</div>
+        <div class="pbody">
+<pre class="code">import { db, usersTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
+
+export async function requireAuth(req, res, next) {
+  const payload = verifyToken(token);
+  <span class="hl-bad">const [user] = await db.select().from(usersTable)
+    .where(eq(usersTable.id, payload.userId)).limit(1);</span>
+  if (!user) { res.status(401).json(...); return; }
+  req.user = user;
+  next();
+}</pre>
+          <div class="consequence">
+            <strong>Consecuencia:</strong>
+            <ul>
+              <li>El middleware conoce el detalle de cómo se guarda un usuario en la base de datos (tabla <code>usersTable</code>, columna <code>id</code>), en vez de simplemente pedir "el usuario con este id".</li>
+              <li>La misma consulta ya existe como <code>AuthRepository.findById()</code>: la lógica de "buscar usuario por id" queda escrita dos veces en el proyecto.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="panel after">
+        <div class="ptitle"><span class="dot"></span> Después</div>
+        <div class="pbody">
+<pre class="code">import type { IAuthRepository } from "../modules/auth/auth.repository.interface";
+
+<span class="c">// fábrica: recibe la ABSTRACCIÓN, no `db`</span>
+export function createRequireAuth(repository: IAuthRepository) {
+  return async function requireAuth(req, res, next) {
+    const payload = verifyToken(token);
+    <span class="hl-good">const user = await repository.findById(payload.userId);</span>
+    if (!user) { res.status(401).json(...); return; }
+    req.user = user;
+    next();
+  };
+}</pre>
+<pre class="code">// container.ts — se arma UNA sola vez, con el mismo authRepository
+<span class="hl-good">requireAuth: createRequireAuth(authRepository),</span></pre>
+          <div class="consequence">
+            <strong>Consecuencia:</strong>
+            <ul>
+              <li>El middleware pide "el usuario con este id" a través de <code>IAuthRepository</code> y no le importa si detrás hay Drizzle, otro ORM o cualquier otra fuente de datos.</li>
+              <li>Reutiliza <code>AuthRepository.findById()</code> en vez de tener la misma consulta escrita en dos archivos distintos.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXTRA -->
+  <section class="block" id="extra">
+    <div class="block-head">
+      <div class="badges"><span class="badge extra">Extra · robustez, no es SOLID</span></div>
+      <h2>Un bonus que aparece en el mismo archivo: fail-fast en la configuración</h2>
+      <span class="file-tag">middlewares/auth.ts</span>
+      <p class="desc">
+        Esto no es un principio SOLID, pero es una práctica de robustez que vale la pena mostrar:
+        cómo se define el secreto usado para firmar los tokens JWT.
+      </p>
+    </div>
+    <div class="compare side-by-side">
+      <div class="panel before">
+        <div class="ptitle"><span class="dot"></span> Antes</div>
+        <div class="pbody">
+<pre class="code">const JWT_SECRET = <span class="hl-bad">process.env.SESSION_SECRET || "pvaru-secret-2026"</span>;</pre>
+          <div class="consequence">
+            <strong>Consecuencia:</strong>
+            <ul>
+              <li>Si alguien olvida configurar la variable de entorno en producción, la app <strong>arranca igual</strong> usando un secreto público, visible en el propio código fuente.</li>
+              <li>Cualquiera que lea el repositorio puede firmar tokens válidos.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="panel after">
+        <div class="ptitle"><span class="dot"></span> Después</div>
+        <div class="pbody">
+<pre class="code">const JWT_SECRET = process.env.SESSION_SECRET;
+
+<span class="hl-good">if (!JWT_SECRET) {
+  throw new Error("SESSION_SECRET must be set. Refusing to start.");
+}</span></pre>
+          <div class="consequence">
+            <strong>Consecuencia:</strong>
+            <ul>
+              <li>Si falta la variable de entorno, el servidor <strong>no arranca</strong> — el error aparece de inmediato en el despliegue, no meses después como una brecha de seguridad.</li>
+              <li>Mismo patrón que ya usaba <code>lib/db</code> al validar <code>DATABASE_URL</code>: consistencia en todo el proyecto.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section class="block" id="resumen">
+    <div class="block-head">
+      <h2>Resumen para la exposición</h2>
+      <p class="desc">Una tabla para cerrar la explicación en clase: qué principio, dónde se ve, y la diferencia concreta antes/después.</p>
+    </div>
+    <div class="overflow-x">
+    <table class="summary">
+      <thead>
+        <tr><th>Principio</th><th>Dónde se aplicó</th><th>Antes</th><th>Después</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>SRP</strong></td>
+          <td><code>listings.routes/service/repository</code></td>
+          <td class="before-cell">Un archivo validaba, decidía permisos y consultaba la BD a la vez</td>
+          <td class="after-cell">Cada capa cambia por una sola razón: HTTP, negocio o persistencia</td>
+        </tr>
+        <tr>
+          <td><strong>DIP</strong></td>
+          <td><code>*.service.ts</code> + <code>container.ts</code></td>
+          <td class="before-cell">Las rutas dependían de <code>db</code> concreto de Drizzle</td>
+          <td class="after-cell">Los services dependen de interfaces (<code>I*Repository</code>), inyectadas desde un único composition root</td>
+        </tr>
+        <tr>
+          <td><strong>Alta cohesión</strong></td>
+          <td>Estructura de carpetas <code>modules/&lt;dominio&gt;</code></td>
+          <td class="before-cell">Todo mezclado por tipo de archivo (routes/, no por dominio)</td>
+          <td class="after-cell">Todo lo de "listings" vive junto; todo lo de "auth" vive junto</td>
+        </tr>
+        <tr>
+          <td><strong>Bajo acoplamiento</strong></td>
+          <td><code>middlewares/auth.ts</code></td>
+          <td class="before-cell">El middleware transversal era la última pieza pegada a Drizzle directo</td>
+          <td class="after-cell">Depende de <code>IAuthRepository</code>: se le puede cambiar la implementación sin tocarlo</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Documento generado a partir del código real del proyecto de alquiler para estudiantes, antes y después del refactor aplicando SOLID.
+</footer>
+
+</body>
+</html>
